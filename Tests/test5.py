@@ -23,4 +23,4 @@ def fibonacci5(self,x):
         
         return x
     print("AA")
-    return self.fibonacci5(x-1)+self.fibonacci5(x-2)
+    return fibonacci5(x-1)+ fibonacci5(x-2)
