@@ -19,6 +19,7 @@ def foo(x,y,z):
 
 def fibonacci5(x):
     
+    global fibonacci5
     if x<=1:
         
         return x
