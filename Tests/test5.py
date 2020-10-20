@@ -8,10 +8,10 @@ def ducu(x):
 def vector(x):
     
     return "hello vector"
-def foo(x):
+def foo(x,y,z):
     
     print(5+3)
     
     print(7**2)
     print("ERRORRRRR")
-    return x**7**2
+    return x**y**z
