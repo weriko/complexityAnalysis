@@ -17,10 +17,10 @@ def foo(x,y,z):
     print("ERRORRRRR")
     return x**y**z
 
-def fibonacci5(x):
+def fibonacci5(self,x):
     
     if x<=1:
         
         return x
     print("AA")
-    return fibonacci5(x-1)+fibonacci5(x-2)
+    return self.fibonacci5(x-1)+self.fibonacci5(x-2)
