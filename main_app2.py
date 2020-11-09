@@ -15,6 +15,7 @@ import requests
 from kivy.uix.label import Label
 import time
 import json
+from math import log,inf
 from kivy.uix.floatlayout import FloatLayout
 import base64
 import sys
@@ -29,9 +30,13 @@ try:
 except:
     pass
 
-user32 = ctypes.windll.user32
-screensize = (user32.GetSystemMetrics(0), user32.GetSystemMetrics(1))
-print(screensize)
+try:
+    user32 = ctypes.windll.user32
+    screensize = (user32.GetSystemMetrics(0), user32.GetSystemMetrics(1))
+    print(screensize)
+  
+except:
+    screensize = (1200,800)
 
 class Container(FloatLayout):
     def __init__(self,*args,**kwargs):
@@ -41,6 +46,9 @@ class Container(FloatLayout):
         self.code = ""
         self.function_dict = {}
     def main_screen(self):
+        self.main_grid=GridLayout(cols=1,
+                              size_hint =(.3, .7),
+                              pos_hint={"right":0.32,"top":.75})
         self.clear_widgets()
         self.load_btn =Button(text="Load",
                     
@@ -49,7 +57,7 @@ class Container(FloatLayout):
         
         self.load_btn.bind(on_press=self.load_pop_up)
         
-        self.add_widget(self.load_btn)
+        self.main_grid.add_widget(self.load_btn)
         self.analysis_btn =Button(text="Analysis",
                     
                               size_hint =(.3, .2),
@@ -58,15 +66,31 @@ class Container(FloatLayout):
         
         
         
-        self.add_widget(self.analysis_btn)
+        self.main_grid.add_widget(self.analysis_btn)
+        
+        
+        self.recursive_analysis_btn =Button(text="Recursive Analysis",
+                    
+                              size_hint =(.3, .2),
+                              pos_hint={"right":0.32,"top":.53})
+        self.recursive_analysis_btn.bind(on_press=self.main_recursive_analysis)
+        
+        
+        
+        self.main_grid.add_widget(self.recursive_analysis_btn)
+        
+        
+        
+        
         self.graph_btn =Button(text="Graph",
                     
                               size_hint =(.3, .2),
                               pos_hint={"right":0.32,"top":.31})
-        self.add_widget(self.graph_btn)
+        self.main_grid.add_widget(self.graph_btn)
         self.graph_btn.bind(on_press=self.graph_pop_up)
+        self.add_widget(self.main_grid)
         try:
-            g_logo_path = "https://github.com//weriko/complexityAnalysis/raw/master/Logo.PNG"
+            g_logo_path = "https://github.com//weriko/complexityAnalysis/raw/master/LOGO.PNG"
             
             self.logo_btn =AsyncImage(source=g_logo_path,
                         
@@ -95,14 +119,101 @@ class Container(FloatLayout):
         self.scrollable_code.add_widget(self.grid_widget_code)
         self.add_widget(self.scrollable_code)
         
-    def exec_function(self,func):
-     
+        try:
+            if self.code:
+                for i in self.code.split("\n"):
+                    self.grid_widget_code.add_widget(TextInput(text=str(i),size_hint_y=None,
+                                                               foreground_color=(1,1,1,1),
+                                                               background_color= (0,0,0,1)))
+        except:
+            pass
+        
+        
+    def recursive_function(self,func):
         func=func.text
        
         index = self.functions.index(func)
+        print(index)
         
        
-        print(self.functions_helper[index])
+        #print(self.functions_helper[index])
+        exec(self.functions_helper[index])
+        
+        times = []
+     
+        complexity = self.analyze_recursion(self.functions_helper[index])
+        for n in range(100):
+            times.append(eval(complexity))
+          
+            
+        plt.plot(range(100),times)
+        plt.ylabel("hmm")
+        
+        
+        plt.savefig("temp.jpg")
+        
+        plt.close()
+        
+        self.aimg2.source = "temp.jpg"
+        self.aimg2.reload()
+        
+        
+    def main_recursive_analysis(self,k):
+        self.clear_widgets()
+        self.scrollable_numeric = ScrollView(size_hint =(.55, 0.9),
+                              pos_hint={"right":0.98,"top":0.95})
+        show = GridLayout(cols=2)
+        self.test_functions()
+       
+        self.function_texts = []
+        
+        
+        for i in self.functions:
+         
+            btn = Button(text=str(i),
+                      )
+            
+            btn.bind(on_press=self.recursive_function)
+            show.add_widget(btn)
+            
+            
+            
+            
+            self.function_texts.append(i)
+       
+        
+        
+        self.aimg2 = kvImage(
+                     
+ 
+                     pos_hint={"right":0.42,"top":0.92} ,
+                     allow_stretch= True,
+                    keep_ratio= True,
+                    size_hint_y=.6,
+                    size_hint_x= .4)
+        self.add_widget(self.aimg2)
+            
+     
+        btn2 = Button(text="Back",
+                      )
+        btn2.bind(on_press=lambda x: self.main_screen())
+        
+        
+        
+        self.scrollable_numeric.add_widget(show)
+        show.add_widget(btn2)
+        self.add_widget(self.scrollable_numeric)
+        
+    def exec_function(self,func):
+     
+        func=func.text
+        print(self.functions)
+        print(self.functions_helper)
+        index = self.functions.index(func)
+        print(index)
+        
+       
+        #print(self.functions_helper[index])
         exec(self.functions_helper[index])
         
         times = []
@@ -166,7 +277,22 @@ class Container(FloatLayout):
         
         
         
-       
+    def graph_help(self,k):
+        show = GridLayout(cols=1)
+        help_label = Label(text="....")
+        back_button = Button(text="back")
+        self.graph_help_popup = Popup(title='Menu',
+        content=show,
+        size_hint=(None, None), size=(int(screensize[1]/3.5),int(screensize[0]/5.5)))
+        show.add_widget(help_label)
+        show.add_widget(back_button)
+        back_button.bind(on_press=self.graph_help_popup.dismiss)
+        
+        
+        self.graph_help_popup.open() 
+      
+        
+        
     def graph_pop_up(self,k):
         self.clear_widgets()
         self.scrollable_numeric = ScrollView(size_hint =(.55, 0.9),
@@ -186,7 +312,7 @@ class Container(FloatLayout):
             show.add_widget(btn)
             
             
-            temp = TextInput(text=str(i),size_hint_y=None,
+            temp = TextInput(text=self.get_function_name(str(i)),size_hint_y=None,
                                                        foreground_color=(1,1,1,1),
                                                      background_color= (0,0,0,1))
             temp2 = TextInput(text="Range",size_hint_y=None,
@@ -196,6 +322,13 @@ class Container(FloatLayout):
             self.function_range.append(temp2)
             show.add_widget(temp)
             show.add_widget(temp2)
+        btn = Button(text="Help",
+                     size_hint =(.3, .2),
+                     pos_hint={"right":0.42,"top":.3}
+                      )
+            
+        btn.bind(on_press=self.graph_help)
+        self.add_widget(btn)
         self.aimg2 = kvImage(
                      
  
@@ -252,22 +385,165 @@ class Container(FloatLayout):
         show.add_widget(btn)
         self.answers_popup = Popup(title="Resultados",content=show)
         self.answers_popup.open()
+        
+    def get_tabs(self,line):
+        tabs=0
+        for i in line:
+            if i==" ":
+                tabs+=1
+            else:
+                break
+        return tabs
+    
+    def check_alpha(self,x):
+        for i in x:
+            
+            if i.isalnum():
+                return True
+        return False
+    
+    def get_function_name(self,function):
+        for i in function.split("\n"):
+            if "def" in i:
+                func_name=i
+                break
+ 
+        func_name = func_name.split(" ")[1]
+        return func_name.replace(":","")
+        
+    def get_functions(self):
+        func_tabs = 0
+        func = []
+        total_func = []
+        for line in self.code.split("\n"):
+            if "def" in line and self.get_tabs(line)<=func_tabs:
+                if func != []: # If func is not an empty list, append to total_func
+                    total_func.append(func)
+                func = [line] #Starts the list with the current line
+                func_tabs = self.get_tabs(line) #this is the amount of lines in the definition of funtion
+                continue #If it finds a def, it gets all the lines inside the def
+            if self.get_tabs(line)>func_tabs:
+                func.append(line) #If the number of indentations is higher than the definition, it adds the line to the list, othewise it stops
+            else:
+                total_func.append(func)
+                func = []
+        return list(filter (lambda s:any([self.check_alpha(c) for c in s]), total_func))
+    
+    
+    
+    def analyze_recursion_helper(self,line,func_name):
+        if "(" not in line:
+            return 0
+        op=0
+        flag=0
+        counter = 0
+        helper=[]
+  
+        for i in range(len(line)):
+        
+            if line[i]=="(":
+                op+=1
+                start=i
+                flag=1
+            if line[i]==")":
+                op-=1
+            if op==0 and flag:
+                helper.append((start,counter))
+                op=0
+                flag=0
+                counter=0
+            if op!=0:
+                counter+=1
+        print(helper)
+        a = len(helper)
+        b_list = []
+        for i in [line[x[0]:x[0]+x[1]] for x in helper]:
+            #print(i)
+            temp = ""
+            
+            for j in i:
+          
+                if j.isdigit():
+                    temp+=j
+                else:
+                    b_list.append(temp)
+                    temp=""
+            b_list.append(temp)
+                
+                        
+          
+        
+     
+        try:
+            b = max([int(x) for x in b_list if x.isdigit()])
+        except:
+            b=0
+      
+        if a>=1 and b==0:
+            return "inf"
+        elif a>=2:
+            return f"{a}**n"
+        elif a==0:
+            return "1"
+        elif a ==b:
+            return f"n*log(n)" 
+        elif "/" in line:
+            return f"log(n)"
+        
+        else:
+            return f"n" 
+            
+        
+        
+    def analyze_recursion(self,function):
+        
+        for i in function.split("\n"):
+            if "def" in i:
+                func_name=i
+                break
+ 
+        func_name = func_name.split(" ")[1]
+        string = ""
+        for i in func_name:
+            if i !="(":
+                string+=i
+            else:
+                
+                break
+        func_lines = [x for x in function.split("\n") if string in x]
+        complexities = []
+        for i in func_lines[1:]:
+            
+            complexities.append(self.analyze_recursion_helper(i,string))
+            
+        mx = "1"   
+        flag=0
+        for i in complexities:
+            if i=="inf":
+                mx="inf"
+                break
+            if "**n" in str(i):
+                mx = i
+                flag=3
+            if i=="n*log(n)" and flag<3:
+                mx=i
+                flag=2
+            if i=="log(n)" and flag<2:
+                mx=i
+                flag = 1
+            if i=="n":
+                mx="n"
+            
+                
+        return mx
+
+    
     def test_functions(self):
         code = self.code.split("\n")
         self.functions = [x for x in code if "def" in x]     
-        indexes = [code.index(x) for x in self.functions]
-        counter = 0
-        helper = []
-        helper_helper = []
-        for i in indexes:
-            tabs = len([x for x in code[i+1] if x ==" "])
-            for j in code[i+1:]:
-                if j[:tabs]==" "*tabs:
-                    helper.append(j)
-                else:
-                    break
-            helper_helper.append(helper)
-            helper = []
+        
+        
+        helper_helper = self.get_functions()
         helper_helper_helper = []
         for i in helper_helper:
             #print(i)
@@ -275,10 +551,9 @@ class Container(FloatLayout):
         #print(helper_helper_helper) 
         helper_helper_helper_helper = []
         
-        for i in helper_helper_helper:
-            helper_helper_helper_helper.append("".join(i))
-        self.functions_helper = [self.functions[i]+"\n" + helper_helper_helper_helper[i] for i in range(len(indexes))]
-        
+       
+        self.functions_helper = ["".join(x) for x in helper_helper_helper]
+        #print(self.functions_helper,"\naaaa")
         
                 
                 
