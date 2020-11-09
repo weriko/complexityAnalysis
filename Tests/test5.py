@@ -36,5 +36,8 @@ def bubble(x):
                     l[j]=l[j+1]
                     l[j+1]=temp
     return l
-
+def factorial(x):
+  if x<=1:
+    return 1
+  return factorial(x-1)*x
 
