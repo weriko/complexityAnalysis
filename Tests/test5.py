@@ -37,6 +37,7 @@ def bubble(x):
                     l[j+1]=temp
     return l
 def factorial(x):
+  global factorial
   if x<=1:
     return 1
   return factorial(x-1)*x
