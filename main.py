@@ -26,6 +26,11 @@ import matplotlib.pyplot as plt
 from kivy.uix.image import Image as kvImage, AsyncImage,CoreImage
 import ctypes
 
+import ssl
+
+
+ssl._create_default_https_context = ssl._create_unverified_context
+
 try:
     import webbrowser
 except:
@@ -42,6 +47,9 @@ except:
         screensize = Window.size
     except:
         screensize = (1600,800)
+        
+Window.keyboard_anim_args= {"d":.2,"t":"in_out_expo"}
+Window.softinput_mode = "below_target"
 
 class Container(FloatLayout):
     def __init__(self,*args,**kwargs):
@@ -74,7 +82,7 @@ class Container(FloatLayout):
         self.main_grid.add_widget(self.analysis_btn)
         
         
-        self.recursive_analysis_btn =Button(text="Recursive Analysis",
+        self.recursive_analysis_btn =Button(text="Recursive\nAnalysis",
                     
                               size_hint =(.3, .2),
                               pos_hint={"right":0.32,"top":.53})
@@ -95,7 +103,7 @@ class Container(FloatLayout):
         self.graph_btn.bind(on_press=self.graph_pop_up)
         self.add_widget(self.main_grid)
         try:
-            g_logo_path = "https://github.com//weriko/complexityAnalysis/raw/master/LOGO.PNG"
+            g_logo_path = "https://github.com//weriko/complexityAnalysis/raw/master/Logo.PNG"
             
             self.logo_btn =AsyncImage(source=g_logo_path,
                         
@@ -113,7 +121,7 @@ class Container(FloatLayout):
     		                keep_ratio= True,
     		                size_hint =(.7, .2))
     		                
-                self.logo_btn.source = "LOGO.PNG"
+                self.logo_btn.source = "data/Logo.png"
                 self.logo_btn.reload()
                 self.add_widget(self.logo_btn)
             except Exception as e:
@@ -180,17 +188,18 @@ class Container(FloatLayout):
         
     def main_recursive_analysis(self,k):
         self.clear_widgets()
-        self.scrollable_numeric = ScrollView(size_hint =(.55, 0.9),
-                              pos_hint={"right":0.98,"top":0.95})
-        show = GridLayout(cols=2)
-        self.test_functions()
+        self.scrollable_numeric = ScrollView(size_hint =(.96, 0.45),
+                              pos_hint={"right":0.98,"top":0.48})
+        show = GridLayout(cols=2,size_hint_y=None)
+        show.bind(minimum_height=show.setter('height'))
+        self.test_functions() 
        
         self.function_texts = []
         
         
         for i in self.functions:
          
-            btn = Button(text=str(i),
+            btn = Button(text=str(i), size_hint_y=None, height=screensize[1]/4,
                       )
             
             btn.bind(on_press=self.recursive_function)
@@ -206,15 +215,15 @@ class Container(FloatLayout):
         self.aimg2 = kvImage(
                      
  
-                     pos_hint={"right":0.42,"top":0.92} ,
+                     pos_hint={"right":0.95,"top":0.96} ,
                      allow_stretch= True,
                     keep_ratio= True,
-                    size_hint_y=.6,
-                    size_hint_x= .4)
+                    size_hint_y=.45,
+                    size_hint_x= .9)
         self.add_widget(self.aimg2)
             
      
-        btn2 = Button(text="Back",
+        btn2 = Button(text="Back",size_hint_y=None,height=screensize[1]/4,
                       )
         btn2.bind(on_press=lambda x: self.main_screen())
         
@@ -317,11 +326,11 @@ class Container(FloatLayout):
         
     def graph_pop_up(self,k):
         self.clear_widgets()
-        self.scrollable_numeric = ScrollView(size_hint =(.55, 0.9),
-                              pos_hint={"right":0.98,"top":0.95})
-        show = GridLayout(cols=3,size_hint=(1,None))
-        
+        self.scrollable_numeric = ScrollView(size_hint =(.96, 0.45),
+                              pos_hint={"right":0.98,"top":0.48})
+        show = GridLayout(cols=3,size_hint_y=None)
         show.bind(minimum_height=show.setter('height'))
+        
         self.test_functions()
        
         self.function_texts = []
@@ -329,7 +338,7 @@ class Container(FloatLayout):
         
         for i in self.functions:
          
-            btn = Button(text=str(i),size_hint_y=None
+            btn = Button(text=str(i),size_hint_y=None,height=screensize[1]/4
                       )
             
             btn.bind(on_press=self.exec_function)
@@ -337,41 +346,45 @@ class Container(FloatLayout):
             
             
             temp = TextInput(text=self.get_function_name(str(i)),size_hint_y=None,
-                                                       foreground_color=(1,1,1,1),
+            						height=screensize[1]/4,
+                                                     foreground_color=(1,1,1,1),
                                                      background_color= (0,0,0,1))
             temp2 = TextInput(text="0,10,1",size_hint_y=None,
                                                        foreground_color=(1,1,1,1),
+                                                       height=screensize[1]/4,
                                                      background_color= (0,0,0,1))
             self.function_texts.append(temp)
             self.function_range.append(temp2)
             show.add_widget(temp)
             show.add_widget(temp2)
-        btn = Button(text="Help",
-                     size_hint =(.3, .2),
-                     pos_hint={"right":0.42,"top":.3}
+        btn = Button(text="Help",size_hint_y=None,height=screensize[1]/4,
+                     
+                     
                       )
             
         btn.bind(on_press=self.graph_help)
-        self.add_widget(btn)
+        show.add_widget(btn)
         self.aimg2 = kvImage(
                      
  
-                     pos_hint={"right":0.42,"top":0.92} ,
+                     pos_hint={"right":0.95,"top":0.96} ,
                      allow_stretch= True,
                     keep_ratio= True,
-                    size_hint_y=.6,
-                    size_hint_x= .4)
+                    size_hint_y=.45,
+                    size_hint_x= .9)
         self.add_widget(self.aimg2)
             
      
-        btn2 = Button(text="Back",size_hint_y=None
+        btn2 = Button(text="Back",size_hint_y=None,height=screensize[1]/4,
                       )
         btn2.bind(on_press=lambda x: self.main_screen())
       
         
         
-        self.scrollable_numeric.add_widget(show)
+        
         show.add_widget(btn2)
+        
+        self.scrollable_numeric.add_widget(show)
         self.add_widget(self.scrollable_numeric)
         #self.answers_popup = Popup(title="Resultados",content=show)
         #self.answers_popup.open()        
