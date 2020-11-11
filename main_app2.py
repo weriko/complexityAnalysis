@@ -140,13 +140,13 @@ class Container(FloatLayout):
         exec(self.functions_helper[index])
         
         times = []
-     
+        
         complexity = self.analyze_recursion(self.functions_helper[index])
-        for n in range(100):
-            times.append(eval(complexity))
+        for n in range(1,101):
+            times.append(eval(complexity[0]  + "* n**"+str(complexity[1])))
           
             
-        plt.plot(range(100),times)
+        plt.plot(range(1,101),times)
         plt.ylabel("hmm")
         
         
@@ -257,7 +257,7 @@ class Container(FloatLayout):
         self.help_popup.open() 
     def open_browser_help(self,k):
         try:
-            webbrowser.open('https://github.com/weriko/complexityAnalysis/blob/master/TEST.pdf', new=2)
+            webbrowser.open('https://github.com/weriko/complexityAnalysis/blob/master/guiaEN.pdf', new=2)
         except:
             
              popup = Popup(title='ERROR', 
@@ -279,7 +279,9 @@ class Container(FloatLayout):
         
     def graph_help(self,k):
         show = GridLayout(cols=1)
-        help_label = Label(text="....")
+        help_label = TextInput(text="""Input:\n
+                           First field -> name_of_function(x,args). There can only be one argument varying, and that should be x. Every other argument should be a constant\n
+                           Second field -> START,END,STEP  ,The range in which x will be tested""")
         back_button = Button(text="back")
         self.graph_help_popup = Popup(title='Menu',
         content=show,
@@ -297,7 +299,9 @@ class Container(FloatLayout):
         self.clear_widgets()
         self.scrollable_numeric = ScrollView(size_hint =(.55, 0.9),
                               pos_hint={"right":0.98,"top":0.95})
-        show = GridLayout(cols=3)
+        show = GridLayout(cols=3,size_hint=(1,None))
+        
+        show.bind(minimum_height=show.setter('height'))
         self.test_functions()
        
         self.function_texts = []
@@ -305,7 +309,7 @@ class Container(FloatLayout):
         
         for i in self.functions:
          
-            btn = Button(text=str(i),
+            btn = Button(text=str(i),size_hint_y=None
                       )
             
             btn.bind(on_press=self.exec_function)
@@ -315,7 +319,7 @@ class Container(FloatLayout):
             temp = TextInput(text=self.get_function_name(str(i)),size_hint_y=None,
                                                        foreground_color=(1,1,1,1),
                                                      background_color= (0,0,0,1))
-            temp2 = TextInput(text="Range",size_hint_y=None,
+            temp2 = TextInput(text="0,10,1",size_hint_y=None,
                                                        foreground_color=(1,1,1,1),
                                                      background_color= (0,0,0,1))
             self.function_texts.append(temp)
@@ -340,14 +344,10 @@ class Container(FloatLayout):
         self.add_widget(self.aimg2)
             
      
-        btn2 = Button(text="Back",
+        btn2 = Button(text="Back",size_hint_y=None
                       )
         btn2.bind(on_press=lambda x: self.main_screen())
-        btn_path_load= Button(text="Load from Path"
-                      )
-        
-        btn_path_load.bind(on_press= self.load_path)
-        
+      
         
         
         self.scrollable_numeric.add_widget(show)
@@ -485,7 +485,7 @@ class Container(FloatLayout):
             return f"{a}**n"
         elif a==0:
             return "1"
-        elif a ==b:
+        elif a == b and "/" in line and b!=1:
             return f"n*log(n)" 
         elif "/" in line:
             return f"log(n)"
@@ -495,7 +495,7 @@ class Container(FloatLayout):
             
         
         
-    def analyze_recursion(self,function):
+    def analyze_recursion(self, function):
         
         for i in function.split("\n"):
             if "def" in i:
@@ -533,12 +533,15 @@ class Container(FloatLayout):
                 flag = 1
             if i=="n":
                 mx="n"
-            
-                
-        return mx
+        print(mx)
+        loops =   self.get_instructions(code=function)
+        loops = self.get_loops(code=loops)
+        print(loops)
+        return mx,loops
 
     
     def test_functions(self):
+        
         code = self.code.split("\n")
         self.functions = [x for x in code if "def" in x]     
         
@@ -599,7 +602,20 @@ class Container(FloatLayout):
             
 
 
-    def get_instructions(self):
+    def get_instructions(self, code = None):
+        if code: #If code is passed as an argument, it uses that code instead of the one saved in object variable and returns the instructions for the code passed as argument
+             with StringIO() as out:
+                dis.dis(code,file=out)
+                datatemp = out.getvalue()
+             
+                data = datatemp.split("\n")
+             code_data = [list(re.split(r'\s{3,}',x)) for x in data]
+             code_instructions = [x[10:] for x in data]
+             #print(self.code_instructions)
+             return code_instructions
+        
+        
+        
         with StringIO() as out:
             dis.dis(self.code,file=out)
             datatemp = out.getvalue()
@@ -609,23 +625,36 @@ class Container(FloatLayout):
         self.code_instructions = [x[10:] for x in data]
         #print(self.code_instructions)
         return datatemp
-    def get_loops(self):
-   
+    
+    
+    def get_loops(self, code = None):
+        #If code is passed as an argument, it uses that code instead of the one saved in object variable and returns the analysis for the code passed as argument
         mx = 0
         curr = 0
-        print(self.code_instructions)
+        
         print(sys.version_info)
         op_code = "GET_ITER" if float(sys.version[:3]) >= 3.8 else "SETUP_LOOP"
         print(op_code)
         
-        for i in self.code_instructions:
-            if op_code in i:
-                curr+=1
-               
-            if "JUMP_ABSOLUTE" in i:
-                if curr>mx:
-                    mx=curr
-                curr= 0
+        if code:
+            for i in code:
+                if op_code in i:
+                    curr+=1
+                   
+                if "JUMP_ABSOLUTE" in i:
+                    if curr>mx:
+                        mx=curr
+                    curr= 0
+        else:    
+        
+            for i in self.code_instructions:
+                if op_code in i:
+                    curr+=1
+                   
+                if "JUMP_ABSOLUTE" in i:
+                    if curr>mx:
+                        mx=curr
+                    curr= 0
         
         return mx
                #C:/Users/Santiago/Desktop/Uni/4 semestre/Algoritmos/bunzei/supertemp.py
