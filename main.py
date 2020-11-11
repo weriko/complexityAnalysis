@@ -389,6 +389,13 @@ class Container(FloatLayout):
         #self.answers_popup = Popup(title="Resultados",content=show)
         #self.answers_popup.open()        
         
+    def delete_input_text(self,k,p):
+        
+        deleatable_list = ["Raw github link", "Path"]
+        if k.text in deleatable_list:
+            k.text = ""
+            
+        
     def load_pop_up(self,k):
         show = GridLayout(cols=1)
         btn_github = Button(text="Load from Github"
@@ -398,6 +405,7 @@ class Container(FloatLayout):
         self.github_code_rd = TextInput(text="Raw github link",size_hint_y=None,
                                                        foreground_color=(1,1,1,1),
                                                        background_color= (0,0,0,1))
+        self.github_code_rd.bind(on_touch_down=self.delete_input_text)
         
         btn = Button(text="Back",
                       )
@@ -409,6 +417,7 @@ class Container(FloatLayout):
         self.path_code_rd = TextInput(text="Path",size_hint_y=None,
                                                        foreground_color=(1,1,1,1),
                                                        background_color= (0,0,0,1))
+        self.path_code_rd.bind(on_touch_down=self.delete_input_text)
         
         
         show.add_widget(self.github_code_rd)
