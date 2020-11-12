@@ -25,8 +25,35 @@ import dis
 import matplotlib.pyplot as plt
 from kivy.uix.image import Image as kvImage, AsyncImage,CoreImage
 import ctypes
-
+import contextlib
 import ssl
+
+
+
+
+
+
+"""
+Ver: Beta 0.5
+
+https://github.com/weriko/complexityAnalysis
+
+News:
+    
+    Added terminal
+    Improved stability
+    Improved UI
+    
+TODO:
+    Optimize code
+    Add screen manager 
+    
+    
+    
+
+"""
+
+
 
 
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -47,6 +74,12 @@ except:
         screensize = Window.size
     except:
         screensize = (1600,800)
+        
+        
+class CTextInput(TextInput):
+    def _hide_cut_copy_paste(self, win=None):
+        if not self._bubble:
+            return
         
 Window.keyboard_anim_args= {"d":.2,"t":"in_out_expo"}
 Window.softinput_mode = "below_target"
@@ -99,8 +132,18 @@ class Container(FloatLayout):
                     
                               size_hint =(.3, .2),
                               pos_hint={"right":0.32,"top":.31})
-        self.main_grid.add_widget(self.graph_btn)
         self.graph_btn.bind(on_press=self.graph_pop_up)
+        
+        self.main_grid.add_widget(self.graph_btn)
+        
+        self.terminal_btn =Button(text="Terminal",
+                    
+                              size_hint =(.3, .2),
+                              pos_hint={"right":0.32,"top":.31})
+        self.terminal_btn.bind(on_press=self.main_terminal)
+        
+        self.main_grid.add_widget(self.terminal_btn)
+        
         self.add_widget(self.main_grid)
         try:
             g_logo_path = "https://github.com//weriko/complexityAnalysis/raw/master/Logo.PNG"
@@ -157,6 +200,160 @@ class Container(FloatLayout):
             pass
         
         
+    def run_terminal(self,k): #Executes the code inside terminal
+        
+        try:
+            
+            self.terminal_output.foreground_color = (0,0,0,1)
+            f = open("console.out","w")
+            sys.stdout = f
+           
+            exec(self.terminal_input.text)
+            sys.stdout = sys.__stdout__
+            f.close()
+            
+            out = open("console.out","r").read()
+            
+            self.terminal_output.text += out
+        except Exception as e:
+            
+            """
+            show = Label(text="Please check your code!")
+            popup = Popup(title='Menu',
+                        content=show,
+                        size_hint=(None, None), size=(int(screensize[1]/1.5),int(screensize[0]/1.5)))
+            """
+            self.terminal_output.text+=f"ERROR\nPlease check your code!\n{e}\n"
+            self.terminal_output.foreground_color = (1,0,0,1)
+     
+    
+        
+        
+                
+             
+                
+            
+    def open_terminal_code_run(self,k):
+        try:
+            f = open(f"savefiles/{self.open_code_name_input.text}","r")
+            self.terminal_input.text = f.read()
+            f.close()
+        except:
+            self.terminal_output.text+="File not found\n"
+            
+        
+    def open_terminal_code(self,k):
+        
+        show =  GridLayout(cols=1)
+        self.open_code_name_input = TextInput(text="Untitled.py")
+        open_code_btn =Button(text="""Open""",
+                    
+                              size_hint =(.2, .2),
+                        
+                              pos_hint={"right":0.55,"top":.25})
+        open_code_btn.bind(on_press=self.open_terminal_code_run)
+        
+        show.add_widget(self.open_code_name_input)
+        
+        show.add_widget(open_code_btn)
+        
+        popup = Popup(title='Save',
+                    content=show,
+                    size_hint=(None, None), size=(int(screensize[1]/1.5),int(screensize[0]/1.5)))
+        popup.open()
+        
+    def save_terminal_code_run(self,k):
+        f = open(f"savefiles/{self.save_code_name_input.text}","w")
+        f.write(self.terminal_input.text)
+        f.close()
+            
+        
+    def save_terminal_code(self,k):
+        
+        show =  GridLayout(cols=1)
+        self.save_code_name_input = TextInput(text="Untitled.py")
+        save_code_btn =Button(text="""Save""",
+                    
+                              size_hint =(.2, .2),
+                        
+                              pos_hint={"right":0.55,"top":.25})
+        save_code_btn.bind(on_press=self.save_terminal_code_run)
+        
+        show.add_widget(self.save_code_name_input)
+        
+        show.add_widget(save_code_btn)
+        
+        popup = Popup(title='Save',
+                    content=show,
+                    size_hint=(None, None), size=(int(screensize[1]/1.5),int(screensize[0]/1.5)))
+        popup.open()
+        
+    def export_terminal_analysis(self):
+        self.code = self.terminal_input.text
+        self.main_screen()
+        
+                
+    def main_terminal(self,k):
+        self.clear_widgets()
+        run_btn = Button(text="""Run""",
+                    
+                              size_hint =(.15, .15),
+                          
+                              pos_hint={"right":0.98,"top":.25})
+        
+        run_btn.bind(on_press=self.run_terminal)
+        
+        open_btn =  Button(text="""Open""",
+                    
+                              size_hint =(.15, .15),
+                         
+                              pos_hint={"right":0.83,"top":.25})
+        open_btn.bind(on_press=self.open_terminal_code)
+        
+        save_btn =  Button(text="""Save""",
+                    
+                              size_hint =(.15, .15),
+                        
+                              pos_hint={"right":0.68,"top":.25})
+        save_btn.bind(on_press=self.save_terminal_code)
+        
+        analyze_btn= Button(text="""Analyze""",
+                    
+                              size_hint =(.15, .15),
+                        
+                              pos_hint={"right":0.53,"top":.25})
+        analyze_btn.bind(on_press=lambda x :self.export_terminal_analysis())
+        
+        back_btn= Button(text="""Back""",
+                    
+                              size_hint =(.15, .15),
+                        
+                              pos_hint={"right":0.38,"top":.25})
+        back_btn.bind(on_press=lambda x :self.main_screen())
+        
+        try:
+            a = self.terminal_input.text
+        except:
+            
+            self.terminal_input = CTextInput(text="",
+                                        size_hint =(.95, .50),
+                            
+                                  pos_hint={"right":0.97,"top":.98})
+            self.terminal_output = CTextInput(text="",
+                                        size_hint =(.95, .20),
+                            
+                                  pos_hint={"right":0.97,"top":.48})
+        self.add_widget(self.terminal_output)
+        self.add_widget(self.terminal_input)
+        
+        self.add_widget(analyze_btn)
+        self.add_widget(run_btn)
+        self.add_widget(open_btn)
+        self.add_widget(save_btn)
+        self.add_widget(back_btn)
+        
+        
+        
     def recursive_function(self,func):
         func=func.text
        
@@ -175,7 +372,7 @@ class Container(FloatLayout):
           
             
         plt.plot(range(1,101),times)
-        plt.ylabel("hmm")
+        plt.ylabel("Time")
         
         
         plt.savefig("temp.png")
@@ -234,37 +431,66 @@ class Container(FloatLayout):
         self.add_widget(self.scrollable_numeric)
         
     def exec_function(self,func):
-     
-        func=func.text
-        print(self.functions)
-        print(self.functions_helper)
-        index = self.functions.index(func)
+        index = self.functions.index(func.text)
+        #print(index)
         print(index)
-        
-       
-        #print(self.functions_helper[index])
-        exec(self.functions_helper[index])
-        
-        times = []
-        rng = self.function_range[index].text.split(",")
-        for i in range(int(rng[0]),int(rng[1]),int(rng[2])):
-            s = time.time()
-            
-            exec(self.function_texts[index].text.replace("x","i"))
-            times.append(time.time()-s)
+        print(self.functions_helper)
+        print(len(self.functions_helper))
+        function_def = self.functions_helper[index]
+        try:
+     
+            func=func.text
+            #print(self.functions)
+            #print(self.functions_helper)
             
             
-        plt.plot(range(int(rng[0]),int(rng[1]),int(rng[2])),times)
-        plt.ylabel("hmm")
-        
-        
-        plt.savefig("temp.png")
-        
-        plt.close()
-        
-        self.aimg2.source = "temp.png"
-        self.aimg2.reload()
-        
+            
+      
+            
+            print(function_def)
+            #print(self.functions_helper[index])
+            function_name = self.get_function_name(self.functions[index])
+            function_name = function_name[:function_name.index("(")]
+            function_name = f"global {function_name}\n" + function_def
+            
+            print(function_name)
+            exec(function_name)
+            
+            times = []
+            rng = self.function_range[index].text.split(",")
+            function = self.function_texts[index].text.replace("x","i")
+           
+            
+            
+            
+            for i in range(int(rng[0]),int(rng[1]),int(rng[2])):
+                s = time.time()
+                
+                exec(function)
+                times.append(time.time()-s)
+                
+                
+            plt.plot(range(int(rng[0]),int(rng[1]),int(rng[2])),times)
+            plt.ylabel("Time")
+            
+            
+            plt.savefig("temp.png")
+            
+            plt.close()
+            
+            self.aimg2.source = "temp.png"
+            self.aimg2.reload()
+        except Exception as e:
+            #print(e)
+            show = GridLayout(cols=1)
+            label = Label(text="ERROR\nCheck your range input\nOnly x can be a non constant argument!\n--> f(x,5,3)\nIt is possible for max recursion depth\nto be reached")
+            popup = Popup(title='Menu',
+                        content=show,
+                        size_hint=(None, None), size=(int(screensize[1]/1.5),int(screensize[0]/1.5)))
+            
+            show.add_widget(label)
+         
+            popup.open()
     def help_pop_up(self,k):
         show = GridLayout(cols=1)
         self.button_about = Button(text="About",
@@ -402,7 +628,7 @@ class Container(FloatLayout):
                       )
         
         btn_github.bind(on_press= self.load_github)
-        self.github_code_rd = TextInput(text="Raw github link",size_hint_y=None,
+        self.github_code_rd = CTextInput(text="Raw github link",size_hint_y=None,
                                                        foreground_color=(1,1,1,1),
                                                        background_color= (0,0,0,1))
         self.github_code_rd.bind(on_touch_down=self.delete_input_text)
@@ -414,7 +640,7 @@ class Container(FloatLayout):
                       )
         
         btn_path_load.bind(on_press= self.load_path)
-        self.path_code_rd = TextInput(text="Path",size_hint_y=None,
+        self.path_code_rd = CTextInput(text="Path",size_hint_y=None,
                                                        foreground_color=(1,1,1,1),
                                                        background_color= (0,0,0,1))
         self.path_code_rd.bind(on_touch_down=self.delete_input_text)
@@ -464,11 +690,13 @@ class Container(FloatLayout):
                 func = [line] #Starts the list with the current line
                 func_tabs = self.get_tabs(line) #this is the amount of lines in the definition of funtion
                 continue #If it finds a def, it gets all the lines inside the def
-            if self.get_tabs(line)>func_tabs:
+            if self.get_tabs(line)>func_tabs or (lambda s: any([c.isalnum() for c in s], line)):
                 func.append(line) #If the number of indentations is higher than the definition, it adds the line to the list, othewise it stops
             else:
                 total_func.append(func)
                 func = []
+        if func!=[]:
+            total_func.append(func)
         return list(filter (lambda s:any([self.check_alpha(c) for c in s]), total_func))
     
     
@@ -496,7 +724,7 @@ class Container(FloatLayout):
                 counter=0
             if op!=0:
                 counter+=1
-        print(helper)
+        #print(helper)
         a = len(helper)
         b_list = []
         for i in [line[x[0]:x[0]+x[1]] for x in helper]:
@@ -575,10 +803,10 @@ class Container(FloatLayout):
                 flag = 1
             if i=="n":
                 mx="n"
-        print(mx)
+        #print(mx)
         loops =   self.get_instructions(code=function)
         loops = self.get_loops(code=loops)
-        print(loops)
+        #print(loops)
         return mx,loops
 
     
@@ -676,7 +904,7 @@ class Container(FloatLayout):
         
         print(sys.version_info)
         op_code = "GET_ITER" if float(sys.version[:3]) >= 3.8 else "SETUP_LOOP"
-        print(op_code)
+        #print(op_code)
         
         if code:
             for i in code:
@@ -730,7 +958,7 @@ class Container(FloatLayout):
         
         #print(cmplx)
         plt.plot(x,y)
-        plt.ylabel("hmm")
+        plt.ylabel("Time")
         
         
         plt.savefig("temp.png")
