@@ -196,6 +196,7 @@ class Container(FloatLayout):
             if self.code:
                 for i in self.code.split("\n"):
                     self.grid_widget_code.add_widget(TextInput(text=str(i),size_hint_y=None,
+                                                               readonly=True,
                                                                foreground_color=(1,1,1,1),
                                                                background_color= (0,0,0,1)))
         except:
@@ -235,36 +236,39 @@ class Container(FloatLayout):
              
                 
             
-    def open_terminal_code_run(self,k):
+    def open_terminal_code_run(self,popup):
         try:
             f = open(f"savefiles/{self.open_code_name_input.text}","r")
             self.terminal_input.text = f.read()
             f.close()
+            popup.dismiss()
         except:
             self.terminal_output.text+="File not found\n"
+            popup.dismiss()
             
         
     def open_terminal_code(self,k):
         
         show =  GridLayout(cols=1)
         self.open_code_name_input = TextInput(text="Untitled.py")
+        popup = Popup(title='Save',
+                    content=show,
+                    size_hint=(None, None), size=(int(screensize[1]/2.5),int(screensize[0]/1.5)))
         open_code_btn =Button(text="""Open""",
                     
                               size_hint =(.2, .2),
                         
                               pos_hint={"right":0.55,"top":.25})
-        open_code_btn.bind(on_press=self.open_terminal_code_run)
+        open_code_btn.bind(on_press= lambda x : self.open_terminal_code_run(popup))
         
         show.add_widget(self.open_code_name_input)
         
         show.add_widget(open_code_btn)
         
-        popup = Popup(title='Save',
-                    content=show,
-                    size_hint=(None, None), size=(int(screensize[1]/2.5),int(screensize[0]/1.5)))
+        
         popup.open()
         
-    def save_terminal_code_run(self,k):
+    def save_terminal_code_run(self,popup):
         try:
             os.mkdir("savefiles")
         except:
@@ -272,6 +276,7 @@ class Container(FloatLayout):
         f = open(f"savefiles/{self.save_code_name_input.text}","w")
         f.write(self.terminal_input.text)
         f.close()
+        popup.dismiss()
             
         
     def save_terminal_code(self,k):
@@ -283,21 +288,59 @@ class Container(FloatLayout):
                               size_hint =(.2, .2),
                         
                               pos_hint={"right":0.55,"top":.25})
-        save_code_btn.bind(on_press=self.save_terminal_code_run)
+        popup = Popup(title='Save',
+                    content=show,
+                    size_hint=(None, None), size=(int(screensize[1]/2.5),int(screensize[0]/1.5)))
+        save_code_btn.bind(on_press= lambda x: self.save_terminal_code_run(popup))
         
         show.add_widget(self.save_code_name_input)
         
         show.add_widget(save_code_btn)
         
-        popup = Popup(title='Save',
-                    content=show,
-                    size_hint=(None, None), size=(int(screensize[1]/2.5),int(screensize[0]/1.5)))
+        
         popup.open()
         
     def export_terminal_analysis(self):
         self.code = self.terminal_input.text
         self.main_screen()
         
+    def open_github_terminal_code_run(self,popup):
+        try:
+            url = self.open_github_code_name_input.text
+            rq = requests.get(url)
+            if rq.status_code == requests.codes.ok:
+                content = rq.content.decode()
+     
+                
+            else:
+                print('Content was not found.')
+            self.terminal_input.text = content
+            popup.dismiss()
+           
+        except:
+            self.terminal_output.text += "ERROR\nFile not found"
+            popup.dismiss()
+            
+    def open_github_terminal_code(self,k):
+        
+        show =  GridLayout(cols=1)
+        self.open_github_code_name_input = CTextInput(text="Raw")
+        open_github_code_btn =Button(text="""Open""",
+                    
+                              size_hint =(.2, .2),
+                        
+                              pos_hint={"right":0.55,"top":.25})
+        popup = Popup(title='Save',
+                    content=show,
+                    size_hint=(None, None), size=(int(screensize[1]/2.5),int(screensize[0]/1.5)))
+        open_github_code_btn.bind(on_press=lambda x : self.open_github_terminal_code_run(popup))
+        
+        show.add_widget(self.open_github_code_name_input)
+        
+        show.add_widget(open_github_code_btn)
+        
+        
+        popup.open()
                 
     def main_terminal(self,k):
         self.clear_widgets()
@@ -305,7 +348,7 @@ class Container(FloatLayout):
                     
                               size_hint =(.15, .15),
                           
-                              pos_hint={"right":0.98,"top":.25})
+                              pos_hint={"right":0.945,"top":.25})
         
         run_btn.bind(on_press=self.run_terminal)
         
@@ -313,28 +356,35 @@ class Container(FloatLayout):
                     
                               size_hint =(.15, .15),
                          
-                              pos_hint={"right":0.83,"top":.25})
+                              pos_hint={"right":0.795,"top":.25})
         open_btn.bind(on_press=self.open_terminal_code)
+        
+        open_btn_github =  Button(text="""Open\ngithub""",
+                    
+                              size_hint =(.15, .15),
+                         
+                              pos_hint={"right":0.345,"top":.25})
+        open_btn_github.bind(on_press=self.open_github_terminal_code)
         
         save_btn =  Button(text="""Save""",
                     
                               size_hint =(.15, .15),
                         
-                              pos_hint={"right":0.68,"top":.25})
+                              pos_hint={"right":0.645,"top":.25})
         save_btn.bind(on_press=self.save_terminal_code)
         
         analyze_btn= Button(text="""Analyze""",
                     
                               size_hint =(.15, .15),
                         
-                              pos_hint={"right":0.53,"top":.25})
+                              pos_hint={"right":0.495,"top":.25})
         analyze_btn.bind(on_press=lambda x :self.export_terminal_analysis())
         
         back_btn= Button(text="""Back""",
                     
                               size_hint =(.15, .15),
                         
-                              pos_hint={"right":0.38,"top":.25})
+                              pos_hint={"right":0.195,"top":.25})
         back_btn.bind(on_press=lambda x :self.main_screen())
         
         try:
@@ -354,6 +404,7 @@ class Container(FloatLayout):
         
         self.add_widget(analyze_btn)
         self.add_widget(run_btn)
+        self.add_widget(open_btn_github)
         self.add_widget(open_btn)
         self.add_widget(save_btn)
         self.add_widget(back_btn)
@@ -856,6 +907,7 @@ class Container(FloatLayout):
             self.grid_widget_code.clear_widgets()
             for i in self.code.split("\n"):
                 self.grid_widget_code.add_widget(TextInput(text=str(i),size_hint_y=None,
+                                                           readonly=True,
                                                            foreground_color=(1,1,1,1),
                                                            background_color= (0,0,0,1)))
             self.answers_popup.dismiss()
@@ -869,6 +921,7 @@ class Container(FloatLayout):
             self.grid_widget_code.clear_widgets()
             for i in self.code.split("\n"):
                 self.grid_widget_code.add_widget(TextInput(text=str(i),size_hint_y=None,
+                                                           readonly=True,
                                                            foreground_color=(1,1,1,1),
                                                            background_color= (0,0,0,1)))
             self.answers_popup.dismiss()
@@ -949,6 +1002,7 @@ class Container(FloatLayout):
         datatemp = self.get_instructions()
         for i in datatemp.split("\n"):
                 self.grid_widget_dis.add_widget(TextInput(text=str(i),size_hint_y=None,
+                                                          readonly=True,
                                                            foreground_color=(1,1,1,1),
                                                            background_color= (0,0,0,1)))
         cmplx = self.get_loops()
