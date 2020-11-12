@@ -341,13 +341,13 @@ class Container(FloatLayout):
         except:
             
             self.terminal_input = CTextInput(text="",
-                                        size_hint =(.95, .50),
+                                        size_hint =(.87, .50),
                             
-                                  pos_hint={"right":0.97,"top":.98})
+                                  pos_hint={"right":0.93,"top":.98})
             self.terminal_output = CTextInput(text="",
-                                        size_hint =(.95, .20),
+                                        size_hint =(.87, .20),
                             
-                                  pos_hint={"right":0.97,"top":.48})
+                                  pos_hint={"right":0.93,"top":.48})
         self.add_widget(self.terminal_output)
         self.add_widget(self.terminal_input)
         
