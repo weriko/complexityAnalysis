@@ -26,6 +26,7 @@ import dis
 import matplotlib.pyplot as plt
 from kivy.uix.image import Image as kvImage, AsyncImage,CoreImage
 import ctypes
+from kivy.clock import Clock
 import contextlib
 import ssl
 
@@ -78,6 +79,9 @@ class CTextInput(TextInput):
     def _hide_cut_copy_paste(self, win=None):
         if not self._bubble:
             return
+        Clock.schedule_once(self._bubble.hide() ,3)
+        
+        
         
 Window.keyboard_anim_args= {"d":.2,"t":"in_out_expo"}
 Window.softinput_mode = "below_target"
