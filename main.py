@@ -260,7 +260,7 @@ class Container(FloatLayout):
         
         popup = Popup(title='Save',
                     content=show,
-                    size_hint=(None, None), size=(int(screensize[1]/1.5),int(screensize[0]/1.5)))
+                    size_hint=(None, None), size=(int(screensize[1]/2.5),int(screensize[0]/1.5)))
         popup.open()
         
     def save_terminal_code_run(self,k):
@@ -290,7 +290,7 @@ class Container(FloatLayout):
         
         popup = Popup(title='Save',
                     content=show,
-                    size_hint=(None, None), size=(int(screensize[1]/1.5),int(screensize[0]/1.5)))
+                    size_hint=(None, None), size=(int(screensize[1]/2.5),int(screensize[0]/1.5)))
         popup.open()
         
     def export_terminal_analysis(self):
@@ -491,7 +491,7 @@ class Container(FloatLayout):
             label = Label(text="ERROR\nCheck your range input\nOnly x can be a non constant argument!\n--> f(x,5,3)\nIt is possible for max recursion depth\nto be reached")
             popup = Popup(title='Menu',
                         content=show,
-                        size_hint=(None, None), size=(int(screensize[1]/1.5),int(screensize[0]/1.5)))
+                        size_hint=(None, None), size=(int(screensize[1]/2.5),int(screensize[0]/1.5)))
             
             show.add_widget(label)
          
@@ -513,7 +513,7 @@ class Container(FloatLayout):
             pass
         self.help_popup = Popup(title='Menu',
         content=show,
-        size_hint=(None, None), size=(int(screensize[1]/1.5),int(screensize[0]/1.5)))
+        size_hint=(None, None), size=(int(screensize[1]/2.5),int(screensize[0]/1.5)))
         self.help_popup.open() 
     def open_browser_help(self,k):
         try:
@@ -533,7 +533,7 @@ class Container(FloatLayout):
         grid.add_widget(about_label)
         grid.add_widget(button_back)
         self.help_popup.content=grid
-        self.help_popup.size=(int(screensize[1]/1.5),int(screensize[0]/1.5))
+        self.help_popup.size=(int(screensize[1]/2.5),int(screensize[0]/1.5))
         
         
         
@@ -545,7 +545,7 @@ class Container(FloatLayout):
         back_button = Button(text="back")
         self.graph_help_popup = Popup(title='Menu',
         content=show,
-        size_hint=(None, None), size=(int(screensize[1]/1.5),int(screensize[0]/1.5)))
+        size_hint=(None, None), size=(int(screensize[1]/2.5),int(screensize[0]/1.5)))
         show.add_widget(help_label)
         show.add_widget(back_button)
         back_button.bind(on_press=self.graph_help_popup.dismiss)
