@@ -13,6 +13,7 @@ from kivy.uix.gridlayout import GridLayout
 import re
 import requests
 from kivy.uix.label import Label
+import os
 import time
 import json
 from math import log,inf
@@ -263,6 +264,10 @@ class Container(FloatLayout):
         popup.open()
         
     def save_terminal_code_run(self,k):
+        try:
+            os.mkdir("savefiles")
+        except:
+            pass
         f = open(f"savefiles/{self.save_code_name_input.text}","w")
         f.write(self.terminal_input.text)
         f.close()
