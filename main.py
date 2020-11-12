@@ -95,7 +95,7 @@ class Container(FloatLayout):
         
         
         
-        self.graph_btn =Button(text="Graph",
+        self.graph_btn =Button(text="Function\nTest",
                     
                               size_hint =(.3, .2),
                               pos_hint={"right":0.32,"top":.31})
