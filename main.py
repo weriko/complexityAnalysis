@@ -36,9 +36,7 @@ import ssl
 
 """
 Ver: Beta 0.5
-
 https://github.com/weriko/complexityAnalysis
-
 News:
     
     Added terminal
@@ -51,7 +49,6 @@ TODO:
     
     
     
-
 """
 
 
@@ -209,7 +206,7 @@ class Container(FloatLayout):
             f = open("console.out","w")
             sys.stdout = f
            
-            exec(self.terminal_input.text)
+            exec(self.terminal_input.text, locals())
             sys.stdout = sys.__stdout__
             f.close()
             
@@ -367,7 +364,7 @@ class Container(FloatLayout):
         
        
         #print(self.functions_helper[index])
-        exec(self.functions_helper[index])
+        exec(self.functions_helper[index], locals())
         
         times = []
         
@@ -456,10 +453,10 @@ class Container(FloatLayout):
             #print(self.functions_helper[index])
             function_name = self.get_function_name(self.functions[index])
             function_name = function_name[:function_name.index("(")]
-            function_name = f"global {function_name}\n" + function_def
+            #function_name = f"global {function_name}\n" + function_def
             
             print(function_name)
-            exec(function_name)
+            exec(function_def, locals())
             
             times = []
             rng = self.function_range[index].text.split(",")
@@ -471,7 +468,7 @@ class Container(FloatLayout):
             for i in range(int(rng[0]),int(rng[1]),int(rng[2])):
                 s = time.time()
                 
-                exec(function)
+                exec(function, locals())
                 times.append(time.time()-s)
                 
                 
