@@ -79,7 +79,7 @@ class CTextInput(TextInput):
     def _hide_cut_copy_paste(self, win=None):
         if not self._bubble:
             return
-        Clock.schedule_once(self._bubble.hide() ,3)
+        Clock.schedule_once(lambda x: self._bubble.hide() ,2)
         
         
         
